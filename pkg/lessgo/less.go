@@ -1,10 +1,10 @@
 package LessGo
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/hokamsingh/lessgo/internal/core/config"
+	"github.com/hokamsingh/lessgo/internal/core/context"
 	"github.com/hokamsingh/lessgo/internal/core/controller"
 	"github.com/hokamsingh/lessgo/internal/core/di"
 	"github.com/hokamsingh/lessgo/internal/core/middleware"
@@ -25,6 +25,7 @@ type Router = router.Router
 type BaseService = service.BaseService
 type Service = service.Service
 type CORSOptions = middleware.CORSOptions
+type Context = context.Context
 
 // Expose middleware types and functions
 type CORSMiddleware = middleware.CORSMiddleware
@@ -34,7 +35,7 @@ type FileUploadMiddleware = middleware.FileUploadMiddleware
 // LoadConfig loads the configuration
 func LoadConfig() config.Config {
 	config := config.LoadConfig()
-	return *config
+	return config
 }
 
 // NewContainer creates a new dependency injection container
@@ -78,15 +79,24 @@ func WithFileUpload(uploadDir string) router.Option {
 	return router.WithFileUpload(uploadDir)
 }
 
-// ServeStatic creates a file server handler to serve static files
-func ServeStatic(pathPrefix, dir string) http.Handler {
-	return router.ServeStatic(pathPrefix, dir)
-}
+// // ServeStatic creates a file server handler to serve static files
+// func ServeStatic(pathPrefix, dir string) http.Handler {
+// 	return router.ServeStatic(pathPrefix, dir)
+// }
 
 func GetFolderPath(folderName string) (string, error) {
 	return utils.GetFolderPath(folderName)
 }
 
-// func RegisterModuleControllers(r *router.Router, container *di.Container, module module.Module) error {
-// 	return utils.RegisterModuleControllers(r, container, module)
-// }
+func RegisterModuleRoutes(r *router.Router, container *di.Container, module module.Module) {
+	utils.RegisterModuleRoutes(container, r, module)
+}
+
+// RegisterModules iterates over a slice of modules and registers their routes.
+func RegisterModules(r *router.Router, container *di.Container, modules []module.Module) error {
+	return utils.RegisterModules(r, container, modules)
+}
+
+func App(options ...router.Option) *Router {
+	return router.NewRouter(options...)
+}

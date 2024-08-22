@@ -7,17 +7,17 @@ import (
 	"go.uber.org/dig"
 )
 
-type Container struct {
+type DigContainer struct {
 	container *dig.Container
 }
 
-func NewContainer() *Container {
-	return &Container{
+func NewDigContainer() *DigContainer {
+	return &DigContainer{
 		container: dig.New(),
 	}
 }
 
-func (c *Container) Register(constructor interface{}) error {
+func (c *DigContainer) Register(constructor interface{}) error {
 	return c.container.Provide(constructor)
 }
 
@@ -26,7 +26,7 @@ func (c *Container) Register(constructor interface{}) error {
 // 	return c.Register(constructor)
 // }
 
-func (c *Container) Invoke(function interface{}) error {
+func (c *DigContainer) Invoke(function interface{}) error {
 	return c.container.Invoke(function)
 }
 
@@ -81,7 +81,7 @@ import (
 	    // Start your application logic here
 	}
 */
-func (c *Container) RegisterScheduler() error {
+func (c *DigContainer) RegisterScheduler() error {
 	sched := scheduler.NewCronScheduler()
 	return c.Register(func() scheduler.Scheduler {
 		return sched
@@ -89,7 +89,7 @@ func (c *Container) RegisterScheduler() error {
 }
 
 // InvokeScheduler provides access to the scheduler for initialization or configuration
-func (c *Container) InvokeScheduler(fn func(scheduler.Scheduler) error) error {
+func (c *DigContainer) InvokeScheduler(fn func(scheduler.Scheduler) error) error {
 	return c.container.Invoke(func(sched scheduler.Scheduler) {
 		if err := fn(sched); err != nil {
 			log.Fatalf("Error invoking scheduler: %v", err)
